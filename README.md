@@ -1,8 +1,7 @@
-# Technical Delivery Manager
 
 ## 🚀 Problem Statement
 
-At Mindtickle, we strive to meet our clients' unique needs. Currently, a client company has requested a report detailing the number of lesson completed on daily basis by each of its active user. Your goal is to create a Python script to compile this report, store it in an AWS S3 Bucket, and dispatch it via email (AWS SES) as attachment. The file should be of CSV format with the following columns - Name, Number of lessons completed, Date
+we strive to meet our clients' unique needs. Currently, a client company has requested a report detailing the number of lesson completed on daily basis by each of its active user. Your goal is to create a Python script to compile this report, store it in an AWS S3 Bucket, and dispatch it via email (AWS SES) as attachment. The file should be of CSV format with the following columns - Name, Number of lessons completed, Date
 
 The challenge lies in aggregating data from difference database sources: PostgreSQL and MySQL. While you won't need to create the databases from scratch, you'll utilize our provided docker-compose file to spin up sample databases. The initial data and relations can be checked in `setup/init.mysql.sql` and `setup/init.pg.sql` files. You can use this data for reference and can add your own data as well to these files for testing purposes.
 
@@ -30,7 +29,7 @@ docker-compose up --build
 
 
 ## 📝 Submission Guidelines
-1. The code can be submitted as a zip file or in a publicly available Git repository to rajat.khanna@mindtickle.com
+1. The code can be submitted as a zip file or in a publicly available Git repository.
 2. Generate an additional markdown file containing any supplementary setup instructions you wish to provide for the reviewer.
 3. Selection Criteria:
     * Correctness and efficiency of the solution.
