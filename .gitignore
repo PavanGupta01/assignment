@@ -1,5 +1,7 @@
 app.py
 venv/
 *.env
-Dockerfile
-requirements.txt
+.venv
+.vscode
+.DS_Store
+__pycache__

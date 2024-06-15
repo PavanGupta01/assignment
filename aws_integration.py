@@ -30,10 +30,7 @@ def send_email_with_attachment(to_email, subject, body, filename, from_email="yo
                 f"Subject: {subject}\n"
                 f"MIME-Version: 1.0\n"
                 f'Content-Type: multipart/mixed; boundary="simple-boundary"\n\n'
-                f"--simple-boundary\n"
-                f"Content-Type: text/plain\n\n"
                 f"{body}\n\n"
-                f"--simple-boundary\n"
                 f'Content-Type: text/csv; name="{filename}"\n'
                 f'Content-Disposition: attachment; filename="{filename}"\n'
                 f"Content-Transfer-Encoding: base64\n\n"

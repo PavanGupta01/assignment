@@ -8,16 +8,12 @@ import boto3
 from db.connections import get_mysql_connection, get_pg_connection
 from aws_integration import upload_to_s3, send_email_with_attachment
 
-# REPORT_TARGET_DATE = date.today()
-REPORT_TARGET_DATE = "2023-09-22"
+START_DATE = "2023-09-20"
+END_DATE = "2023-09-22"
 S3_BUCKET_NAME = "lesson-completion-report"
 
-# ToDo
-# Rename var / methods
-# Support for date range
 
-
-def get_users() -> list[tuple]:
+def get_users(user_ids: tuple) -> dict:
     """
     :returns List of users from Postgres
     """
@@ -25,13 +21,18 @@ def get_users() -> list[tuple]:
     pg_cursor = pg_conn.cursor()
 
     # Fetch active users from PostgreSQL
+    # ToDo This query can be replaced with the ORM (SQLAlchemy) model
+    # ToDo For huge data volume query can be paginated with LIMIT and OFFSET
     pg_query = """
     SELECT user_id, user_name
     FROM mindtickle_users
     WHERE active_status = 'active'
-    """
+    AND user_id in {0}
+    """.format(
+        user_ids
+    )
     pg_cursor.execute(pg_query)
-    active_users = pg_cursor.fetchall()
+    active_users = dict(pg_cursor.fetchall())
 
     pg_cursor.close()
     pg_conn.close()
@@ -39,27 +40,22 @@ def get_users() -> list[tuple]:
     return active_users
 
 
-def get_lessons(active_user_ids: tuple) -> list[tuple]:
+def get_lessons() -> list[tuple]:
     """
-    :param Tuple of active user ids
     :returns List of users and respective number of lessons taken by the users.
     """
-    # ToDo Check how many inactive users system has if that population is quite less than
-    # It might make sense to remove active_user_ids parameter
-    # as lessons are likely to be taken by active users only.
 
     mysql_conn = get_mysql_connection()
     mysql_cursor = mysql_conn.cursor()
 
     # Fetch lesson completions from MySQL
     mysql_query = """
-    SELECT user_id, COUNT(lesson_id) as lessons_completed
+    SELECT user_id, completion_date, COUNT(lesson_id) as lessons_completed
     FROM lesson_completion
-    WHERE completion_date = "{0}"
-    AND user_id in {1}
-    GROUP BY user_id
+    WHERE completion_date between "{0}" AND "{1}"
+    GROUP BY user_id, completion_date
     """.format(
-        REPORT_TARGET_DATE, active_user_ids
+        START_DATE, END_DATE
     )
     mysql_cursor.execute(mysql_query)
     user_lessons = mysql_cursor.fetchall()
@@ -72,10 +68,11 @@ def get_lessons(active_user_ids: tuple) -> list[tuple]:
 
 # Data aggregation
 def aggregate_data():
-    active_users = get_users()
-    active_user_ids = tuple({user_id for user_id, _ in active_users})
-    user_lessons = get_lessons(active_user_ids)
 
+    user_lessons = get_lessons()
+    distinct_user_ids = tuple({user_id for user_id, _, _ in user_lessons})
+    active_users = get_users(distinct_user_ids)
+    # Filter lessons with inactive user_ids
     return user_lessons, active_users
 
 
@@ -85,14 +82,14 @@ def generate_csv(user_lessons, users, filename="report.csv"):
         writer = csv.writer(file)
         writer.writerow(["User Name", "Lessons Completed", "Date"])
 
-        for user_id, lessons_completed in user_lessons:
-            user_name = next(user_name for uid, user_name in users if uid == user_id)
-            writer.writerow([user_name, lessons_completed, REPORT_TARGET_DATE])
+        for user_id, completion_date, lessons_completed in user_lessons:
+            user_name = users.get(user_id)
+            if user_name:
+                writer.writerow([user_name, lessons_completed, completion_date])
 
 
 # Main function
 if __name__ == "__main__":
-    # print("Sample report")
     user_lessons, active_users = aggregate_data()
 
     print(user_lessons)
