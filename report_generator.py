@@ -8,8 +8,8 @@ import boto3
 from db.connections import get_mysql_connection, get_pg_connection
 from aws_integration import upload_to_s3, send_email_with_attachment
 
-START_DATE = "2023-09-20"
-END_DATE = "2023-09-22"
+START_DATE = "2021-01-01"
+END_DATE = "2024-09-21"
 S3_BUCKET_NAME = "lesson-completion-report"
 
 
@@ -21,8 +21,8 @@ def get_users(user_ids: tuple) -> dict:
     pg_cursor = pg_conn.cursor()
 
     # Fetch active users from PostgreSQL
-    # ToDo This query can be replaced with the ORM (SQLAlchemy) model
-    # ToDo For huge data volume query can be paginated with LIMIT and OFFSET
+    # NOTE Query can be replaced with the ORM (SQLAlchemy) models
+    # NOTE For large data volume we might want to paginate the query with LIMIT and OFFSET
     pg_query = """
     SELECT user_id, user_name
     FROM mindtickle_users
@@ -68,11 +68,11 @@ def get_lessons() -> list[tuple]:
 
 # Data aggregation
 def aggregate_data():
-
+    # Assuming lessons will have a less data as compared to users.
     user_lessons = get_lessons()
     distinct_user_ids = tuple({user_id for user_id, _, _ in user_lessons})
     active_users = get_users(distinct_user_ids)
-    # Filter lessons with inactive user_ids
+
     return user_lessons, active_users
 
 
@@ -92,11 +92,8 @@ def generate_csv(user_lessons, users, filename="report.csv"):
 if __name__ == "__main__":
     user_lessons, active_users = aggregate_data()
 
-    print(user_lessons)
-    print(active_users)
-
     generate_csv(user_lessons, active_users)
-    # upload_to_s3("report.csv", S3_BUCKET_NAME)
-    # send_email_with_attachment(
-    #     "recipient@example.com", "Daily Report", "Please find the attached report.", "report.csv"
-    # )
+    upload_to_s3("report.csv", S3_BUCKET_NAME)
+    send_email_with_attachment(
+        "recipient@example.com", "Daily Report", "Please find the attached lesson completion report.", "report.csv"
+    )

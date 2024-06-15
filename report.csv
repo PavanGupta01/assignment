@@ -1,8 +1,21 @@
-User Name,Lessons Completed,Date
+user_name,lessons_completed,completion_date
+User1,1,2023-09-13
+User3,1,2023-09-15
+User4,1,2023-09-15
+User1,1,2023-09-16
+User3,1,2023-09-16
+User4,1,2023-09-16
+User1,1,2023-09-18
+User3,1,2023-09-18
+User4,1,2023-09-18
+User1,1,2023-09-19
+User3,1,2023-09-19
+User4,1,2023-09-19
 User1,1,2023-09-20
 User3,1,2023-09-20
 User4,1,2023-09-20
 User1,1,2023-09-21
+User3,1,2022-09-21
 User4,1,2023-09-21
 User1,1,2023-09-22
 User3,1,2023-09-22

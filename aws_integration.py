@@ -28,12 +28,9 @@ def send_email_with_attachment(to_email, subject, body, filename, from_email="yo
                 f"From: {from_email}\n"
                 f"To: {to_email}\n"
                 f"Subject: {subject}\n"
-                f"MIME-Version: 1.0\n"
-                f'Content-Type: multipart/mixed; boundary="simple-boundary"\n\n'
                 f"{body}\n\n"
                 f'Content-Type: text/csv; name="{filename}"\n'
                 f'Content-Disposition: attachment; filename="{filename}"\n'
-                f"Content-Transfer-Encoding: base64\n\n"
                 f"{attachment.decode('utf-8')}\n"
                 f"--simple-boundary--"
             ).encode("utf-8")
